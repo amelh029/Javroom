@@ -12,7 +12,9 @@ import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
-public class AddNoteActivity extends AppCompatActivity {
+public class AddEditNoteActivity extends AppCompatActivity {
+    public static final String EXTRA_ID =
+            "com.example.javroom.EXTRA_ID";
     public static final String EXTRA_TITLE =
         "com.example.javroom.EXTRA_TITLE";
     public static final String EXTRA_DESCRIPTION =
@@ -22,7 +24,7 @@ public class AddNoteActivity extends AppCompatActivity {
 
 
     private EditText editTextTitle;
-    private EditText editTextDescriptiom;
+    private EditText editTextDescription;
     private NumberPicker numberPickerPriority;
 
     @Override
@@ -31,14 +33,23 @@ public class AddNoteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_note);
 
         editTextTitle = findViewById(R.id.edit_text_title);
-        editTextDescriptiom = findViewById(R.id.edit_text_description);
+        editTextDescription = findViewById(R.id.edit_text_description);
         numberPickerPriority = findViewById(R.id.number_picker_priority);
 
         numberPickerPriority.setMinValue(1);
         numberPickerPriority.setMaxValue(10);
 
         getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_close);
-        setTitle("Add Note");
+        Intent intent = getIntent();
+
+        if(intent.hasExtra(EXTRA_ID)){
+            setTitle("Edit Note");
+            editTextTitle.setText(intent.getStringExtra(EXTRA_TITLE));
+            editTextDescription.setText(intent.getStringExtra(EXTRA_DESCRIPTION));
+            numberPickerPriority.setValue(intent.getIntExtra(EXTRA_PRIORITY, 1));
+        }else {
+            setTitle("Add Note");
+        }
 
     }
 
@@ -50,7 +61,7 @@ public class AddNoteActivity extends AppCompatActivity {
     }
     private void saveNote(){
         String title = editTextTitle.getText().toString();
-        String description = editTextDescriptiom.getText().toString();
+        String description = editTextDescription.getText().toString();
         int priority = numberPickerPriority.getValue();
 
         if(title.trim().isEmpty()||  description.trim().isEmpty()){
@@ -62,6 +73,11 @@ public class AddNoteActivity extends AppCompatActivity {
         data.putExtra(EXTRA_TITLE, title);
         data.putExtra(EXTRA_DESCRIPTION, description);
         data.putExtra(EXTRA_PRIORITY, priority);
+
+        int id = getIntent().getIntExtra(EXTRA_ID, -1);
+        if(id != -1){
+            data.putExtra(EXTRA_ID, id);
+        }
 
         setResult(RESULT_OK, data);
         finish();
